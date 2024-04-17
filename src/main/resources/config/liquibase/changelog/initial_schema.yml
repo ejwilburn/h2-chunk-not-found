@@ -1,0 +1,233 @@
+databaseChangeLog:
+  - changeSet:
+      id: db-creation
+      author: Validity
+      changes:
+        # file_row_key table
+        - createTable:
+            tableName: file_row_key
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: file_row_id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+              - column:
+                  name: task_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: scenario_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: hashed_key
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: file_row_key
+            indexName: IX_file_row_key_task_id_hashed_key_scenario_id
+            columns:
+              - column:
+                  name: task_id
+              - column:
+                  name: hashed_key
+              - column:
+                  name: scenario_id
+        - createIndex:
+            tableName: file_row_key
+            indexName: IX_file_row_key_file_row_id_task_id_hashed_key
+            columns:
+              - column:
+                  name: file_row_id
+              - column:
+                  name: task_id
+              - column:
+                  name: hashed_key
+
+        # generated_key table
+        - createTable:
+            tableName: generated_key
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: record_id
+                  type: varchar(36)
+              - column:
+                  name: task_id
+                  type: UUID
+              - column:
+                  name: scenario_id
+                  type: UUID
+              - column:
+                  name: hashed_key
+                  type: varchar(64)
+              - column:
+                  name: full_key
+                  type: varchar(500)
+              - column:
+                  name: object_type
+                  type: varchar(255)
+        - createIndex:
+            tableName: generated_key
+            indexName: IX_generated_key_record_id_hashed_key_scenario_id_task_id_object_type
+            unique: true
+            columns:
+              - column:
+                  name: record_id
+              - column:
+                  name: hashed_key
+              - column:
+                  name: scenario_id
+              - column:
+                  name: task_id
+              - column:
+                  name: object_type
+        - createIndex:
+            tableName: generated_key
+            indexName: IX_generated_key_task_id_scenario_id_hashed_key_object_type
+            columns:
+              - column:
+                  name: task_id
+              - column:
+                  name: scenario_id
+              - column:
+                  name: hashed_key
+              - column:
+                  name: object_type
+        - createIndex:
+            tableName: generated_key
+            indexName: IX_generated_key_task_id_hashed_key
+            columns:
+              - column:
+                  name: task_id
+              - column:
+                  name: hashed_key
+
+        # import_data table
+        - createTable:
+            tableName: import_data
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: task_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: selected
+                  type: bool
+                  defaultValueBoolean: true
+              - column:
+                  name: import_type
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: file_row_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: match_step
+                  type: varchar(100)
+              - column:
+                  name: group_size
+                  type: int
+              - column:
+                  name: group_has_winner
+                  type: bool
+                  defaultValueBoolean: false
+              - column:
+                  name: match_step_name
+                  type: varchar(255)
+              - column:
+                  name: winner_rule_applied
+                  type: varchar(255)
+                  defaultValue: ""
+              - column:
+                  name: score
+                  type: int
+              - column:
+                  name: is_winner
+                  type: bool
+                  defaultValueBoolean: false
+              - column:
+                  name: object_type
+                  type: varchar(1000)
+              - column:
+                  name: record_id
+                  type: varchar(36)
+              - column:
+                  name: dedupe_key
+                  type: varchar(10000)
+              - column:
+                  name: error
+                  type: bool
+                  defaultValueBoolean: false
+              - column:
+                  name: error_message
+                  type: varchar(10000)
+        - createIndex:
+            tableName: import_data
+            indexName: IX_import_data_task_id_object_type_selected_error
+            columns:
+              - column:
+                  name: task_id
+              - column:
+                  name: object_type
+              - column:
+                  name: selected
+              - column:
+                  name: error
+        - createIndex:
+            tableName: import_data
+            indexName: IX_import_data_file_row_id_task_id
+            columns:
+              - column:
+                  name: file_row_id
+              - column:
+                  name: task_id
+        - createIndex:
+            tableName: import_data
+            indexName: IX_import_data_task_id_id_group_size
+            columns:
+              - column:
+                  name: task_id
+              - column:
+                  name: id
+              - column:
+                  name: group_size
+        - createIndex:
+            tableName: import_data
+            indexName: IX_import_data_task_id_match_step_selected_object_type
+            columns:
+              - column:
+                  name: task_id
+              - column:
+                  name: match_step
+              - column:
+                  name: selected
+              - column:
+                  name: object_type
