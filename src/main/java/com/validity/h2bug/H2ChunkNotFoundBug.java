@@ -37,9 +37,9 @@ public class H2ChunkNotFoundBug {
         try {
             h2Bug.init();
             h2Bug.runTest();
+        } finally {
             stopWatch.stop();
             System.out.println("Total duration: %s".formatted(stopWatch.formatTime()));
-        } finally {
             h2Bug.stop();
         }
     }
@@ -48,6 +48,7 @@ public class H2ChunkNotFoundBug {
         H2ServerProvider.startServer();
 
         // Delete the DB when the app exits, so we start with a fresh DB every time.
+        // Comment this section out if you want to keep the database after running.
         var dbFileName = Path.of(H2_DB_DIR, DatabaseProvider.DB_NAME).toString();
         new File(dbFileName + H2_DB_MAIN_EXTENSION).deleteOnExit();
         new File(dbFileName + H2_DB_TRACE_EXTENSION).deleteOnExit();
