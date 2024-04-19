@@ -21,7 +21,8 @@ public class H2ChunkNotFoundBug {
     protected static final String H2_DB_MAIN_EXTENSION = ".mv.db";
     protected static final String H2_DB_TRACE_EXTENSION = ".trace.db";
 
-    private static final int NUMBER_OF_DUPLICATE_GROUPS = 400000;
+    // Tweak these settings, increasing them if it doesn't repro.
+    private static final int NUMBER_OF_DUPLICATE_GROUPS = 200000;
     private static final int GROUP_SIZE = 10;
     private static final int TOTAL_MATCHES = NUMBER_OF_DUPLICATE_GROUPS * GROUP_SIZE;
 
@@ -30,16 +31,30 @@ public class H2ChunkNotFoundBug {
     private final ImportDataDaoService importDataDaoService = new ImportDataDaoService();
 
     public static void main(String[] args) {
-        var stopWatch = new StopWatch();
-        stopWatch.start();
         var h2Bug = new H2ChunkNotFoundBug();
+        var fullStopWatch = new StopWatch();
+        fullStopWatch.start();
 
         try {
             h2Bug.init();
-            h2Bug.runTest();
+
+            // Run the repro test several times, though generally it fails in the first iteration.
+            for (var x = 0; x < 100; x++) {
+                var stopWatch = new StopWatch();
+                stopWatch.start();
+
+                System.out.println("Starting iteration " + x);
+                h2Bug.runTest();
+                System.out.println("Done with iteration " + x);
+
+                stopWatch.stop();
+                System.out.println("Total duration for iteration %d: %s".formatted(x, stopWatch.formatTime()));
+            }
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+            e.printStackTrace();
         } finally {
-            stopWatch.stop();
-            System.out.println("Total duration: %s".formatted(stopWatch.formatTime()));
+            System.out.println("Total duration: " + fullStopWatch.formatTime());
             h2Bug.stop();
         }
     }
@@ -98,9 +113,13 @@ public class H2ChunkNotFoundBug {
         System.out.println("Done creating %d file rows with %d total matches."
             .formatted(NUMBER_OF_DUPLICATE_GROUPS, TOTAL_MATCHES));
 
-        System.out.println("Adding matches to import data table...");
+        System.out.println("Adding matches to import data table, this is where the exception should occur...");
         importDataDaoService.addMatches(taskId, scenarioId);
         System.out.println("Done.");
+
+        fileRowKeyDaoService.truncateTable();
+        generatedKeyDaoService.truncateTable();
+        importDataDaoService.truncateTable();
     }
 
     private String buildHash(String value) {

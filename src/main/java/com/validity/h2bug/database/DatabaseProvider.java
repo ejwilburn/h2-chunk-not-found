@@ -20,7 +20,7 @@ public enum DatabaseProvider {
     public static final String DB_CONNECTION_ERROR_MESSAGE = "Error connecting to database.";
     public static final String H2_JDBC_URL_PREFIX = "jdbc:h2:file:";
     public static final String DB_NAME = "h2bug";
-    public static final String H2_OPTIONS = ";AUTO_SERVER=TRUE;CACHE_SIZE=262144;MODE=LEGACY;WRITE_DELAY=5";
+    public static final String H2_OPTIONS = ";CACHE_SIZE=262144;WRITE_DELAY=5";
 
     private static final String DB_USERNAME = "h2";
     private static final String DB_PASSWORD = null;
